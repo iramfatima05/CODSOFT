@@ -1,0 +1,52 @@
+import json
+
+class Task:
+    def __init__(self, description, completed=False):
+        self.description = description
+        self.completed = completed
+
+    def __str__(self):
+        return f"{'[X]' if self.completed else '[ ]'} {self.description}"
+
+def load_tasks(filename='tasks.json'):
+    try:
+        with open(filename, 'r') as f:
+            tasks = json.load(f)
+            return [Task(t['description'], t['completed']) for t in tasks]
+    except FileNotFoundError:
+        return []
+
+def save_tasks(tasks, filename='tasks.json'):
+    with open(filename, 'w') as f:
+        json.dump([{'description': t.description, 'completed': t.completed} for t in tasks], f)
+
+def main():
+    tasks = load_tasks()
+    while True:
+        action = input("Choose an action: [A]dd, [V]iew, [U]pdate, [D]elete, [Q]uit: ").lower()
+        if action == 'a':
+            description = input("Enter task description: ")
+            tasks.append(Task(description))
+        elif action == 'v':
+            for i, task in enumerate(tasks, 1):
+                print(f"{i}. {task}")
+        elif action == 'u':
+            index = int(input("Enter task number to update: ")) - 1
+            if 0 <= index < len(tasks):
+                tasks[index].completed = not tasks[index].completed
+            else:
+                print("Invalid task number.")
+        elif action == 'd':
+            index = int(input("Enter task number to delete: ")) - 1
+            if 0 <= index < len(tasks):
+                del tasks[index]
+            else:
+                print("Invalid task number.")
+        elif action == 'q':
+            save_tasks(tasks)
+            break
+        else:
+            print("Invalid action.")
+
+if __name__ == "__main__":
+    main()
